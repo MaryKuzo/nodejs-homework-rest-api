@@ -1,9 +1,13 @@
 import Joi from "joi";
 
 export const contactAddSchema = Joi.object({
-    title: Joi.string().required().messages({
-        "any.required": `"title" required field`
+    name: Joi.string().required().messages({
+      "any.required": `missing required "name" field`,
     }),
-    director: Joi.string().required(),
-})
-
+    email: Joi.string().required().messages({
+      "any.required": `missing required "email" field`,
+    }),
+    phone: Joi.string().required().messages({
+      "any.required": `missing required "phone" field`,
+    }),
+  });
