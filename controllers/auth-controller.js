@@ -1,14 +1,15 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import gravatar from "gravatar"
+import gravatar from "gravatar";
+import { nanoid } from "nanoid";
 
 import User from "../models/User.js";
 
-import { HttpError, cloudinary } from "../helpers/index.js";
+import { HttpError, sendEmail } from "../helpers/index.js";
 
 import { ctrlWrapper } from "../decorators/index.js";
 
-const {JWT_SECRET} = process.env;
+const {JWT_SECRET, BASE_URL} = process.env;
 
 const signup = async(req, res)=> {
     const {email, password} = req.body;
@@ -17,16 +18,26 @@ const signup = async(req, res)=> {
         throw HttpError(409, `${email} already in use`)
     }
 
-    const avatarSize = 200; // Розмір аватара (пікселі)
+
+    const avatarSize = 200; 
     const avatarURL = gravatar.url(email, { s: `${avatarSize}`, d: 'retro' });
+    const verificationCode = nanoid();
 
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({...req.body, avatarURL, password: hashPassword});
+    const newUser = await User.create({...req.body, avatarURL, verificationCode, password: hashPassword});
+    
+    const verifyEmail = {
+        to: email, 
+        subject: "Verify email",
+        html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${verificationCode}">Click to verify email</a>`
+    };
+
+    await sendEmail(verifyEmail)
+
 
     res.status(201).json({
         username: newUser.username,
         email: newUser.email,
-        avatarURL: newUser.avatarURL
     })
 }
 
