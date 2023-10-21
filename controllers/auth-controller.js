@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar"
 
 import User from "../models/User.js";
 
-import { HttpError } from "../helpers/index.js";
+import { HttpError, cloudinary } from "../helpers/index.js";
 
 import { ctrlWrapper } from "../decorators/index.js";
 
@@ -16,13 +17,16 @@ const signup = async(req, res)=> {
         throw HttpError(409, `${email} already in use`)
     }
 
-    const hashPassword = await bcrypt.hash(password, 10);
+    const avatarSize = 200; // Розмір аватара (пікселі)
+    const avatarURL = gravatar.url(email, { s: `${avatarSize}`, d: 'retro' });
 
-    const newUser = await User.create({...req.body, password: hashPassword});
+    const hashPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({...req.body, avatarURL, password: hashPassword});
 
     res.status(201).json({
         username: newUser.username,
         email: newUser.email,
+        avatarURL: newUser.avatarURL
     })
 }
 

@@ -21,9 +21,14 @@ const userSchema = new Schema({
         minlength: 6,
         required: true,
     },
+    avatarURL: {
+        type: String,
+        required: true,
+    },
     token: {
         type: String,
-    }
+    },
+
 }, {versionKey: false, timestamps: true})
 
 userSchema.post("save", handleSaveError);

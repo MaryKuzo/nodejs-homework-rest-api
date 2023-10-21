@@ -24,6 +24,10 @@ const contactSchema = new Schema({
         required: [true, "Set phone for contact"],
         // match: phoneRegExp,
     },
+    avatar: {
+      type: String,
+      required: true,
+    },
     favorite: {
         type: Boolean,
         default: false,
